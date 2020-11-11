@@ -95,14 +95,14 @@ def test_render(app, tmpdir):
     }
     rv = client.get('/render', headers=headers)
     assert 200 == rv.status_code
-    assert '<html><body>value</body></html>' == rv.data
+    assert b'<html><body>value</body></html>' == rv.data
 
     headers = {
         'Accept': 'application/json; q=0.7, text/html; q=0.8'
     }
     rv = client.get('/render', headers=headers)
     assert 200 == rv.status_code
-    assert '<html><body>value</body></html>' == rv.data
+    assert b'<html><body>value</body></html>' == rv.data
 
     headers = {
         'Accept': 'application/json; q=0.7, text/html; q=0.8'
@@ -187,12 +187,12 @@ def test_provides(app):
     headers = {
         'Accept': 'application/json'
     }
-    assert 'application/json' == client.get('/5', headers=headers).data
+    assert b'application/json' == client.get('/5', headers=headers).data
 
     headers = {
         'Accept': 'text/html'
     }
-    assert 'text/html' == client.get('/5', headers=headers).data
+    assert b'text/html' == client.get('/5', headers=headers).data
 
 
 def test_media_type():
@@ -229,7 +229,7 @@ def test_acceptablility():
     assert can_accept(acceptables, media_types)
 
     # Partitial wildcard
-    media_types = map(MediaType, ['text/*'])
+    media_types = list(map(MediaType, ['text/*']))
     acceptables = map(MediaType, ['application/json'])
     assert not can_accept(acceptables, media_types)
 
@@ -237,31 +237,31 @@ def test_acceptablility():
     assert can_accept(acceptables, media_types)
 
     # Multiple acceptables
-    media_types = map(MediaType, ['text/html'])
-    acceptables = map(MediaType, ['application/json', 'text/html'])
+    media_types = list(map(MediaType, ['text/html']))
+    acceptables = list(map(MediaType, ['application/json', 'text/html']))
     assert can_accept(acceptables, media_types)
 
-    media_types = map(MediaType, ['image/jpeg'])
-    acceptables = map(MediaType, ['application/json', 'text/html'])
+    media_types = list(map(MediaType, ['image/jpeg']))
+    acceptables = list(map(MediaType, ['application/json', 'text/html']))
     assert not can_accept(acceptables, media_types)
 
     # Multiple media types
-    media_types = map(MediaType, ['text/*', 'application/json'])
-    acceptables = map(MediaType, ['application/json'])
+    media_types = list(map(MediaType, ['text/*', 'application/json']))
+    acceptables = list(map(MediaType, ['application/json']))
     assert can_accept(acceptables, media_types)
-    acceptables = map(MediaType, ['text/html'])
+    acceptables = list(map(MediaType, ['text/html']))
     assert can_accept(acceptables, media_types)
 
-    acceptables = map(MediaType, ['image/jpeg'])
+    acceptables = list(map(MediaType, ['image/jpeg']))
     assert not can_accept(acceptables, media_types)
 
     # Multiple both
-    media_types = map(MediaType, ['text/html', 'application/*'])
-    acceptables = map(MediaType, ['application/json', 'image/jpeg'])
+    media_types = list(map(MediaType, ['text/html', 'application/*']))
+    acceptables = list(map(MediaType, ['application/json', 'image/jpeg']))
     assert can_accept(acceptables, media_types)
 
-    media_types = map(MediaType, ['text/html', 'application/*'])
-    acceptables = map(MediaType, ['image/png', 'image/jpeg'])
+    media_types = list(map(MediaType, ['text/html', 'application/*']))
+    acceptables = list(map(MediaType, ['image/png', 'image/jpeg']))
     assert not can_accept(acceptables, media_types)
 
 
@@ -278,10 +278,10 @@ def test_choosing():
 
     assert png_type == choose_media_type(
         [png_type, jpeg_type],
-        map(MediaType, ['text/html', 'application/*', 'image/*'])
+        list(map(MediaType, ['text/html', 'application/*', 'image/*']))
     )
 
     assert html_type == choose_media_type(
         [json_type, html_type],
-        map(MediaType, ['text/html', 'application/*'])
+        list(map(MediaType, ['text/html', 'application/*']))
     )

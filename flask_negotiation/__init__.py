@@ -3,11 +3,13 @@
 
 Provides better content-negotiation for flask.
 """
+from __future__ import absolute_import
+
 from flask import Response, request, abort
 
-from renderers import TemplateRenderer
-from decorators import provides
-from media_type import acceptable_media_types, best_renderer, MediaType
+from .renderers import TemplateRenderer
+from .decorators import provides
+from .media_type import acceptable_media_types, best_renderer, MediaType
 
 __all__ = ('Render', 'MediaType', 'provides')
 
@@ -74,5 +76,5 @@ class Render(object):
         if renderer is None:
             abort(406)
         body = renderer.render(data, template, ctx)
-        return Response(body, status, headers, unicode(rendered_media_type),
-                        content_type=unicode(rendered_media_type))
+        return Response(body, status, headers, str(rendered_media_type),
+                        content_type=str(rendered_media_type))

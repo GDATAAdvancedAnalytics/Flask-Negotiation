@@ -1,13 +1,15 @@
 """:mod:`decorators` --- Decorators for Flask views
 ===================================================
 """
+from __future__ import absolute_import
+
 from functools import wraps
 
 from flask import request
 from werkzeug.exceptions import NotAcceptable
 
-from renderers import Renderer
-from media_type import acceptable_media_types, MediaType, choose_media_type
+from .renderers import Renderer
+from .media_type import acceptable_media_types, MediaType, choose_media_type
 
 
 def provides(media_type, *args, **kwargs):
@@ -58,7 +60,7 @@ def provides(media_type, *args, **kwargs):
         if isinstance(media_type, MediaType):
             media_types.append(media_type)
         elif isinstance(media_type, type) and issubclass(media_type, Renderer):
-            media_types += map(MediaType, media_type.__media_types__)
+            media_types += list(map(MediaType, media_type.__media_types__))
         elif isinstance(media_type, Renderer):
             media_types += media_type.media_types
         else:

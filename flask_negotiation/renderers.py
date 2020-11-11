@@ -3,17 +3,20 @@
 
 Renderers
 """
+from __future__ import absolute_import
+
 import json
+import six
 from abc import ABCMeta, abstractmethod
 from flask import render_template
 from functools import wraps
-from media_type import MediaType
+from .media_type import MediaType
 
 
+@six.add_metaclass(ABCMeta)
 class Renderer(object):
     """Base renderer class.
     """
-    __metaclass__ = ABCMeta
 
     __media_types__ = ()
     """A collection of supporting media-type :class:`string`s, subclasses must
@@ -90,7 +93,7 @@ class FunctionRenderer(Renderer):
     def __init__(self, fn, media_types):
         super(FunctionRenderer, self).__init__()
         self.fn = fn
-        self.__media_types__ = map(unicode, media_types)
+        self.__media_types__ = list(map(str, media_types))
 
     def render(self, data, template=None, ctx=None):
         return self.fn(data, template=template, ctx=ctx)

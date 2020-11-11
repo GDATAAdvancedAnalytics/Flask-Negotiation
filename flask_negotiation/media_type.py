@@ -4,6 +4,7 @@
 HTTP media type
 """
 
+from functools import cmp_to_key
 
 def parse_header(s):
     """Parses parameter header
@@ -47,7 +48,7 @@ class MediaType(object):
         self.main_type, sep, self.sub_type = self.media_type.partition('/')
 
     def __contains__(self, other):
-        for k, v in self.params.iteritems():
+        for k, v in self.params.items():
             if k != 'q' and other.params.get(k, None) != v:
                 return False
         if self.main_type == '*' and self.sub_type == '*':
@@ -59,8 +60,8 @@ class MediaType(object):
         return self == other
 
     def __eq__(self, other):
-        if isinstance(other, basestring):
-            return unicode(self) == other
+        if isinstance(other, str):
+            return str(self) == other
         return (self.main_type == other.main_type and
                 self.sub_type == other.sub_type)
 
@@ -68,16 +69,15 @@ class MediaType(object):
         return '<media type:' + str(self) + '>'
 
     def __str__(self):
-        return unicode(self).encode('utf-8')
+        return '; '.join(['%s/%s' % (self.main_type, self.sub_type)] +
+                          ['%s=%s' % (k, v)
+                           for k, v in self.params.items()])
 
-    def __unicode__(self):
-        return u'; '.join([u'%s/%s' % (self.main_type, self.sub_type)] +
-                          [u'%s=%s' % (k, v)
-                           for k, v in self.params.iteritems()])
+    def __lt__(self, other):
+        return float(self.quality) < float(other.quality)
 
-    def __cmp__(self, other):
-        return cmp(float(self.quality),
-                   float(other.quality))
+    def __gt__(self, other):
+        return float(self.quality) > float(other.quality)
 
     @property
     def quality(self):
@@ -110,6 +110,9 @@ def best_renderer(renderers, media_types):
     if not choosen_items:
         return None, None
 
+    def cmp(first, second):
+        return first - second
+
     def cmp_types(first, second):
         renderer1, choosen1, media_type1 = first
         renderer2, choosen2, media_type2 = second
@@ -120,7 +123,7 @@ def best_renderer(renderers, media_types):
                        media_types.index(media_type1))
         return cmp(media_type1.quality, media_type2.quality)
 
-    return tuple(sorted(choosen_items, cmp=cmp_types)[-1][:2])
+    return tuple(sorted(choosen_items, key=cmp_to_key(cmp_types))[-1][:2])
 
 
 def choose_media_type(acceptables, media_types):
@@ -138,6 +141,9 @@ def choose_media_type(acceptables, media_types):
     if not choosen:
         return None
 
+    def cmp(first, second):
+        return first - second
+
     def cmp_types(first, second):
         acceptable1, media_type1 = first
         acceptable2, media_type2 = second
@@ -146,7 +152,7 @@ def choose_media_type(acceptables, media_types):
                        acceptables.index(acceptable1))
         return cmp(acceptable.quality, acceptable.quality)
 
-    return sorted(choosen, cmp=cmp_types)[-1][0]
+    return sorted(choosen, key=cmp_to_key(cmp_types))[-1][0]
 
 
 def can_accept(acceptables, media_types):

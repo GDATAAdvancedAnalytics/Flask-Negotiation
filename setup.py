@@ -9,10 +9,11 @@ from setuptools import setup
 
 requires = [
     'Flask',
+    'six'
 ]
 
 setup(name='Flask-Negotiation',
-      version='0.1.9',
+      version='0.1.10',
       url='http://blog.hardtack.me/',
       author='GunWoo Choi',
       author_email='6566gun@gmail.com',
